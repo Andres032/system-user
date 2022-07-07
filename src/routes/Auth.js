@@ -3,7 +3,10 @@ const User = require ('../models/User');
 const Joi = require('@hapi/joi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const verifyToken = require('../middleware/verifyToken')
+const axios = require('axios');
+const mqtt = require ('mqtt');
+var client = mqtt.connect('mqtt://mqtt.lyaelectronic.com');
 
 const schemaRegister = Joi.object({
     username: Joi.string().min(6).max(255).required(),
@@ -128,6 +131,32 @@ const saltos = await bcrypt.genSalt(10);
     }catch (error){
         res.status(400).json(error)
     }
+
+    //Enviar mensaje al servidor MQTT
+router.post('/messages/send', verifyToken, async (req, res, next) =>{
+    async function Api(){
+        let respuesta = await axios.get('https://catfact.ninja/fact?limit=1&max_length=120');
+        return JSON.stringify(respuesta.data.fact)
+    }
+    const respuesta = await Api();
+
+    const user = await User.findOne({email: req.body.email});
+    if (!user){
+        return res.status(404).json({ error: 'El correo no existe'})
+    }
+    const id = user._id
+
+    let mensaje = res.json({id: id, frase: respuesta})
+
+    function ConectarMensaje(){
+        client.subscribe('lyatest/codigo_prueba', function (err){
+            if (!err){
+                client.publish('lyatest/codigo_prueba', mensaje)
+            }
+        })
+    }
+    client.on('connect', ConectarMensaje)
+})
 
     
 
