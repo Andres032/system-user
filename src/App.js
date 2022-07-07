@@ -12,6 +12,13 @@ app.get('/', (req, res) => {
     res.send('welcome docs');
 });
 
+const authRoutes = require ('./routes/auth')
+
+
+
+// route middlewares
+app.use('/user', authRoutes);
+
 // Server
 app.listen(process.env.PORT, () => {
     console.log(`Server running success:${process.env.PORT}`)
