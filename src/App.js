@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
     res.send('welcome docs');
 });
 
-const authRoutes = require ('./rutas/auth')
+const authRoutes = require ('./routes/Auth')
 const verifyToken = require('./middleware/verifyToken')
 const perfil = require('./routes/Perfil')
 
