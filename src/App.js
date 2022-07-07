@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+require('./database/connection')
 
 // capture data body
 const app = express();
